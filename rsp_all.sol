@@ -6,13 +6,6 @@ contract RPS {
     
     
     constructor () payable {}
-    
-    /*
-    event GameCreated(address originator, uint256 originator_bet);
-    event GameJoined(address originator, address taker, uint256 originator_bet, uint256 taker_bet);
-    event OriginatorWin(address originator, address taker, uint256 betAmount);
-    event TakerWin(address originator, address taker, uint256 betAmount);
-   */
    
     enum Hand {
         rock, paper, scissors
@@ -28,7 +21,7 @@ contract RPS {
     
     // player structure
     struct Player {
-        Hand hand;
+        bytes32 _Hashed_hand;
         address payable addr;
         PlayerStatus playerStatus;
         uint256 playerBetAmount;
@@ -44,34 +37,45 @@ contract RPS {
     
     mapping(uint => Game) rooms;
     uint roomLen = 0;
-    
-    modifier isValidHand (Hand _hand) {
-        require((_hand  == Hand.rock) || (_hand  == Hand.paper) || (_hand == Hand.scissors));
+    /*
+    modifier isValidHand (bytes32 _Hashed_hand, address _owner) {
+        require((_Hashed_hand  == Hashed_hand(_Hashed_hand, _owner)) || (_Hashed_hand  == Hand.paper) || (_Hashed_hand == Hand.scissors));
         _;
     }
-    
+    */
     modifier isPlayer (uint roomNum, address sender) {
         require(sender == rooms[roomNum].originator.addr || sender == rooms[roomNum].taker.addr);
         _;
     }
-    /*
-    function Encryption(uint256 _hand, address _owner) public pure returns (bytes32){
+    
+    function Hashed_hand(uint256 _hand, address _owner) public pure returns (bytes32){
         require(_hand == 0 || _hand == 1 || _hand == 2);
         return keccak256(abi.encodePacked(_hand, _owner));
     }
-    */
-    function createRoom (Hand _hand) public payable isValidHand(_hand) returns (uint roomNum) {
+
+    function decodedHand(bytes32 _Hashed_hand, address playerAddress)private pure returns (uint8 _decodedHand){
+        if (_Hashed_hand == Hashed_hand(0, playerAddress)) {
+            _decodedHand = 0;
+        } else if (_Hashed_hand == Hashed_hand(1, playerAddress)) {
+            _decodedHand = 1;
+        } else if (_Hashed_hand == Hashed_hand(2, playerAddress)) {
+            _decodedHand = 2;
+        }
+        return _decodedHand;
+    }
+    
+    function createRoom (bytes32 _Hashed_hand) public payable returns (uint roomNum) {
         rooms[roomLen] = Game({
             betAmount: msg.value,
             gameStatus: GameStatus.STATUS_NOT_STARTED,
             originator: Player({
-                hand: _hand,
+                _Hashed_hand: _Hashed_hand,
                 addr: payable(msg.sender),
                 playerStatus: PlayerStatus.STATUS_PENDING,
                 playerBetAmount: msg.value
             }),
             taker: Player({ // will change
-                hand: Hand.rock,
+                _Hashed_hand: _Hashed_hand,
                 addr: payable(msg.sender),  
                 playerStatus: PlayerStatus.STATUS_PENDING,
                 playerBetAmount: 0
@@ -80,15 +84,13 @@ contract RPS {
         roomNum = roomLen;
         roomLen = roomLen+1;
         
-        
-       //Emit gameCreated(msg.sender, msg.value);
+        return roomNum;
     }
     
-    function joinRoom(uint roomNum, Hand _hand) public payable isValidHand( _hand) {
-       //Emit gameJoined(game.originator.addr, msg.sender, game.betAmount, msg.value);
+    function joinRoom(uint roomNum, bytes32 _Hashed_hand) public payable{
         
         rooms[roomNum].taker = Player({
-            hand: _hand,
+            _Hashed_hand: _Hashed_hand,
             addr: payable(msg.sender),
             playerStatus: PlayerStatus.STATUS_PENDING,
             playerBetAmount: msg.value
@@ -114,11 +116,12 @@ contract RPS {
          rooms[roomNum].gameStatus = GameStatus.STATUS_COMPLETE;
     }
     
-    function compareHands(uint roomNum) private{
-        uint8 originator = uint8(rooms[roomNum].originator.hand);
-        uint8 taker = uint8(rooms[roomNum].taker.hand);
+    function compareHands(uint roomNum) private{ 
+        uint8 originator = decodedHand(rooms[roomNum].originator._Hashed_hand, rooms[roomNum].originator.addr);
+        uint8 taker = decodedHand(rooms[roomNum].taker._Hashed_hand, rooms[roomNum].taker.addr);
         
         rooms[roomNum].gameStatus = GameStatus.STATUS_STARTED;
+        
         
         if (taker == originator){ //draw
             rooms[roomNum].originator.playerStatus = PlayerStatus.STATUS_TIE;
@@ -135,6 +138,7 @@ contract RPS {
         } else {
             rooms[roomNum].gameStatus = GameStatus.STATUS_ERROR;
         }
+
        
     }
 }

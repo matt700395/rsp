@@ -13,9 +13,33 @@
 			{
 				"inputs": [
 					{
-						"internalType": "enum RPS.Hand",
+						"internalType": "uint256",
 						"name": "_hand",
-						"type": "uint8"
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					}
+				],
+				"name": "Hashed_hand",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "_Hashed_hand",
+						"type": "bytes32"
 					}
 				],
 				"name": "createRoom",
@@ -37,9 +61,9 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "enum RPS.Hand",
-						"name": "_hand",
-						"type": "uint8"
+						"internalType": "bytes32",
+						"name": "_Hashed_hand",
+						"type": "bytes32"
 					}
 				],
 				"name": "joinRoom",
@@ -89,11 +113,11 @@
 	},
 	"sources": {
 		"rsp_all.sol": {
-			"keccak256": "0xa8c1e61ea20c01a79775d8e394cbe2e9a15e860b49c4c56b41299915285dfb3f",
+			"keccak256": "0xa279fa36bfcb87cd0ffcd974e37a9ffabbc70032e91c08358e3a4d5fbdd472ce",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://1f4c4b01c06392ffa2bf97f73feb00479404d1bca4de2dcae2ada1495fc0de43",
-				"dweb:/ipfs/QmaLuDRKX7W8XdFpHtvTFWYFonVpFwpQarU9Ha82J8SkRo"
+				"bzz-raw://fad5d0e4055290924877448efae984df99ffde23b586a508d4df45d372fcc41b",
+				"dweb:/ipfs/QmZsLVxjMrMxJFuitPverXE9X1KqvbucmSC2NhDH1ApLAB"
 			]
 		}
 	},
